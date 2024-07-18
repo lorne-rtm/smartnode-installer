@@ -97,12 +97,12 @@ fi
 log "OS updates complete!"
 pause
 
-# Install and configure fail2ban and tmux
-log "Installing fail2ban and tmux..."
-(DEBIAN_FRONTEND=noninteractive apt install fail2ban tmux pv -y) &
+# Install and configure fail2ban
+log "Installing fail2ban..."
+(DEBIAN_FRONTEND=noninteractive apt install fail2ban pv -y) &
 spinner $!
 if [ $? -ne 0 ]; then
-    log "Failed to install fail2ban and tmux. Exiting."
+    log "Failed to install fail2ban. Exiting."
     exit 1
 fi
 pause
