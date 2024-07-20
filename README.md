@@ -22,7 +22,9 @@ This script is provided as is and I do not guarantee it will work for you, you u
 - Checks smartnode status and if "Ready" script completes, if any other status script exits with a note.
 
   Run the script:
-  ```wget https://raw.githubusercontent.com/lorne-rtm/smartnode-installer/main/smartnode-installer.sh -O smartnode_setup.sh && chmod +x smartnode_setup.sh
+  
+  ```
+  wget https://raw.githubusercontent.com/lorne-rtm/smartnode-installer/main/smartnode-installer.sh -O smartnode_setup.sh && chmod +x smartnode_setup.sh
 ./smartnode_setup.sh
 ```
 
