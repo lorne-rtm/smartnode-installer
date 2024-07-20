@@ -20,3 +20,7 @@ This script is provided as is and I do not guarantee it will work for you, you u
 - When synchronizing blockchain local height and explorer height are compared. Progress to next step only when local and explorer height are within 2 of each other.
 - Asks for BLS.
 - Checks smartnode status and if "Ready" script completes, if any other status script exits with a note.
+
+# Script Demo
+
+https://youtu.be/9UMpJOuXU90
