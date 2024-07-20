@@ -1,5 +1,7 @@
 # Raptoreum Smartnode Installer
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/d42502024326445786fef8ac13f3ad4b)](https://app.codacy.com/gh/lorne-rtm/smartnode-installer/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+
 ![License](https://img.shields.io/github/license/lorne-rtm/smartnode-installer)
 
 *Fairly, kinda, somewhat easy Smartnode installer.*
