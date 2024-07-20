@@ -1,4 +1,9 @@
 # Raptoreum Smartnode Installer
+
+![Code Quality](https://img.shields.io/codacy/grade/lorne-rtm/smartnode-installer)
+
+![License](https://img.shields.io/github/license/lorne-rtm/smartnode-installer)
+
 *Fairly, kinda, somewhat easy Smartnode installer.*
 
 This script takes care of Smartnode VPS setup, it needs to be run as root and only has been tested on Ubuntu 22. It should work fine on Ubuntu 20 as well.
