@@ -1,7 +1,5 @@
 # Raptoreum Smartnode Installer
 
-![Code Quality](https://img.shields.io/codacy/grade/lorne-rtm/smartnode-installer)
-
 ![License](https://img.shields.io/github/license/lorne-rtm/smartnode-installer)
 
 *Fairly, kinda, somewhat easy Smartnode installer.*
