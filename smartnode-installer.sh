@@ -54,8 +54,41 @@ type_out() {
     printf "\n"
 }
 
-# Welcome message
-type_out "Welcome to Charlies kinda, sorta, maybe, I think so, easy and slightly salty Smartnode installer! First thing I will do is check your system information, after that I will ask you a couple of questions. After that I'll take care of the rest and you can do something else, or... you can watch me work if that's your thing :)"
+# Function to collect user input
+collect_user_input() {
+    cat << EOF
+
+Welcome to Charlies kinda, sorta, maybe, I think so, easy and slightly salty Smartnode installer! First thing I will do is check your system information, after that I will ask you a couple of questions. After that I'll take care of the rest and you can do something else, or... you can watch me work if that's your thing :)
+
+EOF
+
+    read -p "${BOLD}${GREEN}Enter your BLS private key: ${RESET}" BLSKEY
+    read -p "${BOLD}${GREEN}Would you like to bootstrap the blockchain data? (y/n): ${RESET}" BOOTSTRAP
+    read -p "${BOLD}${GREEN}I will check your system for SWAP space. If I do not find any, would you like me to create it? (recommended) (y/n): ${RESET}" CREATE_SWAP
+    read -p "${BOLD}${GREEN}Press Enter to continue...${RESET}"
+
+    echo "BLSKEY=\"$BLSKEY\"" > user_input.tmp
+    echo "BOOTSTRAP=\"$BOOTSTRAP\"" >> user_input.tmp
+    echo "CREATE_SWAP=\"$CREATE_SWAP\"" >> user_input.tmp
+}
+
+# Check if the script is being run interactively
+if [[ -t 1 ]]; then
+    # Interactive shell
+    collect_user_input
+else
+    # Non-interactive shell
+    log "Running in non-interactive mode. Using default values."
+    BLSKEY="default_key"
+    BOOTSTRAP="n"
+    CREATE_SWAP="y"
+fi
+
+# Load user input from the temporary file
+if [[ -f user_input.tmp ]]; then
+    source user_input.tmp
+    rm user_input.tmp
+fi
 
 # System checks
 log "Checking system specs..."
@@ -84,13 +117,6 @@ fi
 if [ "$CPU_CORES" -le 1 ] || [ "$MEMORY" -lt 4096 ] || [ "$DISK_SPACE" -lt 30720 ]; then
     log "${RED}Your Smartnode may not run reliably.${RESET}"
 fi
-
-# Collect user input
-log "Please provide the following information:"
-
-read -p "${BOLD}${GREEN}Enter your BLS private key: ${RESET}" BLSKEY
-read -p "${BOLD}${GREEN}Would you like to bootstrap the blockchain data? (y/n): ${RESET}" BOOTSTRAP
-read -p "${BOLD}${GREEN}I will check your system for SWAP space. If I do not find any, would you like me to create it? (recommended) (y/n): ${RESET}" CREATE_SWAP
 
 # Check if the script is run as root
 if [ "$EUID" -ne 0 ]; then
