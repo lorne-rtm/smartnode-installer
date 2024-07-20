@@ -5,6 +5,7 @@ BOLD=$(tput bold)
 GREEN=$(tput setaf 2)
 WHITE=$(tput setaf 7)
 RED=$(tput setaf 1)
+YELLOW=$(tput setaf 3)
 RESET=$(tput sgr0)
 
 log() {
@@ -44,6 +45,53 @@ check_command() {
     fi
 }
 
+type_out() {
+    local message=$1
+    for ((i=0; i<${#message}; i++)); do
+        printf "${YELLOW}${message:$i:1}${RESET}"
+        sleep 0.05
+    done
+    printf "\n"
+}
+
+# Welcome message
+type_out "Welcome to Charlies kinda, sorta, maybe, I think so, easy and slightly salty Smartnode installer! First thing I will do is check your system information, after that I will ask you a couple of questions. After that I'll take care of the rest and you can do something else, or... you can watch me work if that's your thing :)"
+
+# System checks
+log "Checking system specs..."
+
+CPU_CORES=$(nproc)
+if [ "$CPU_CORES" -gt 1 ]; then
+    log "$CPU_CORES CPU cores found - Good!"
+else
+    log "$CPU_CORES CPU core found - Not so good"
+fi
+
+MEMORY=$(free -m | awk '/^Mem:/{print $2}')
+if [ "$MEMORY" -ge 4096 ]; then
+    log "$MEMORY MB RAM found - Good!"
+else
+    log "$MEMORY MB RAM found - Not so good"
+fi
+
+DISK_SPACE=$(df -m / | awk 'NR==2 {print $4}')
+if [ "$DISK_SPACE" -ge 30720 ]; then
+    log "$DISK_SPACE MB disk space found - Good!"
+else
+    log "$DISK_SPACE MB disk space found - Not so good"
+fi
+
+if [ "$CPU_CORES" -le 1 ] || [ "$MEMORY" -lt 4096 ] || [ "$DISK_SPACE" -lt 30720 ]; then
+    log "${RED}Your Smartnode may not run reliably.${RESET}"
+fi
+
+# Collect user input
+log "Please provide the following information:"
+
+read -p "${BOLD}${GREEN}Enter your BLS private key: ${RESET}" BLSKEY
+read -p "${BOLD}${GREEN}Would you like to bootstrap the blockchain data? (y/n): ${RESET}" BOOTSTRAP
+read -p "${BOLD}${GREEN}I will check your system for SWAP space. If I do not find any, would you like me to create it? (recommended) (y/n): ${RESET}" CREATE_SWAP
+
 # Check if the script is run as root
 if [ "$EUID" -ne 0 ]; then
     log "This script must be run as root"
@@ -55,12 +103,15 @@ fi
 
 # Check if the OS is Ubuntu 20, 22, or 24
 . /etc/os-release
-if [[ "$VERSION_ID" == "20.04" || "$VERSION_ID" == "22.04" || "$VERSION_ID" == "24.04" ]]; then
+if [[ "$VERSION_ID" == "20.04" || "$VERSION_ID" == "22.04" ]]; then
     log "Great, you are using a supported operating system!"
     pause
 else
-    log "The found OS is not supported. Only Ubuntu 20.04, 22.04, and 24.04 are supported."
-    exit 1
+    read -p "${BOLD}${YELLOW}It looks like you are using an unsupported operating system, would you like to continue anyway? (y/n): ${RESET}" CONTINUE_ANYWAY
+    if [[ "$CONTINUE_ANYWAY" != "y" && "$CONTINUE_ANYWAY" != "Y" ]]; then
+        log "Exiting the script as per user choice."
+        exit 1
+    fi
 fi
 
 # Create user named mcsmarty with a secure random password and disable SSH login
@@ -97,12 +148,17 @@ fi
 log "OS updates complete!"
 pause
 
-# Install and configure fail2ban
-log "Installing fail2ban..."
-(DEBIAN_FRONTEND=noninteractive apt install fail2ban pv -y) &
+# Check and install curl if not installed
+log "Checking for curl installation..."
+check_command curl
+pause
+
+# Install and configure fail2ban and tmux
+log "Installing fail2ban and tmux..."
+(DEBIAN_FRONTEND=noninteractive apt install fail2ban tmux pv -y) &
 spinner $!
 if [ $? -ne 0 ]; then
-    log "Failed to install fail2ban. Exiting."
+    log "Failed to install fail2ban and tmux. Exiting."
     exit 1
 fi
 pause
@@ -147,7 +203,7 @@ pause
 log "Checking swap space..."
 if swapon --show | grep -q '/swapfile'; then
     log "SWAP already exists, skipping..."
-else
+elif [[ "$CREATE_SWAP" == "y" || "$CREATE_SWAP" == "Y" ]]; then
     log "Creating 4GB SWAP..."
     fallocate -l 4G /swapfile
     chmod 600 /swapfile
@@ -159,6 +215,8 @@ else
         exit 1
     fi
     log "4GB SWAP created and activated!"
+else
+    log "No SWAP space found and creation skipped."
 fi
 pause
 
@@ -177,7 +235,7 @@ if [[ "$VERSION_ID" == "20.04" ]]; then
     BINARY_PATTERN="raptoreum-ubuntu20-.*mainnet.*\.tar\.gz"
 elif [[ "$VERSION_ID" == "22.04" ]]; then
     BINARY_PATTERN="raptoreum-ubuntu22-.*mainnet.*\.tar\.gz"
-elif [[ "$VERSION_ID" == "24.04" ]]; then
+else
     BINARY_PATTERN="raptoreum-ubuntu24-.*mainnet.*\.tar\.gz"
 fi
 LATEST_URL=$(curl -s https://api.github.com/repos/Raptor3um/raptoreum/releases/latest | grep browser_download_url | grep "$BINARY_PATTERN" | cut -d '"' -f 4)
@@ -257,6 +315,7 @@ listen=1
 addnode=lbdn.raptoreum.com
 rpcport=8484
 daemon=1
+smartnodeblsprivkey=$BLSKEY
 " | su - mcsmarty -c "tee /home/mcsmarty/.raptoreumcore/raptoreum.conf"
 if [ $? -ne 0 ]; then
     log "Failed to create raptoreum.conf. Exiting."
@@ -265,7 +324,6 @@ fi
 pause
 
 # Ask user if they want to bootstrap blockchain data
-read -p "${BOLD}${GREEN}Would you like to bootstrap the blockchain data? (y/n): ${RESET}" BOOTSTRAP
 if [[ "$BOOTSTRAP" == "y" || "$BOOTSTRAP" == "Y" ]]; then
     log "Downloading bootstrap..."
     su - mcsmarty -c "wget -q --show-progress --progress=bar:force:noscroll https://bootstrap.raptoreum.com/bootstraps/bootstrap.tar.xz -O /home/mcsmarty/.raptoreumcore/bootstrap.tar.xz"
@@ -343,41 +401,11 @@ while true; do
         log "raptoreumd is fully synchronized."
         break
     fi
-    sleep 120
+    log "Synchronizing....."
+    sleep 60
+    spinner $!
 done
 pause
-
-# Stop raptoreumd
-log "Stopping raptoreumd..."
-su - mcsmarty -c "raptoreum-cli stop" &
-spinner $!
-if [ $? -ne 0 ]; then
-    log "Failed to stop raptoreumd. Exiting."
-    exit 1
-fi
-pause
-
-# Ask for BLS private key
-read -p "${BOLD}${GREEN}Enter your BLS private key: ${RESET}" BLSKEY
-echo "smartnodeblsprivkey=$BLSKEY" | su - mcsmarty -c "tee -a /home/mcsmarty/.raptoreumcore/raptoreum.conf"
-if [ $? -ne 0 ]; then
-    log "Failed to add BLS private key to raptoreum.conf. Exiting."
-    exit 1
-fi
-pause
-
-# Start raptoreumd
-log "Starting raptoreumd..."
-su - mcsmarty -c "raptoreumd" &
-spinner $!
-if [ $? -ne 0 ]; then
-    log "Failed to start raptoreumd. Exiting."
-    exit 1
-fi
-
-# Notify user about waiting time
-log "Waiting 1 minute before checking smartnode status..."
-sleep 60
 
 # Wait and check smartnode status
 STATUS=$(su - mcsmarty -c "raptoreum-cli smartnode status")
