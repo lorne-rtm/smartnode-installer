@@ -23,7 +23,7 @@ This script is provided as is and I do not guarantee it will work for you, you u
 
   Run the script:
   
-  ```
+  ```bash
   wget https://raw.githubusercontent.com/lorne-rtm/smartnode-installer/main/smartnode-installer.sh -O smartnode_setup.sh && chmod +x smartnode_setup.sh
 ./smartnode_setup.sh
 ```
