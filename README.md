@@ -1,5 +1,7 @@
 # Raptoreum Smartnode Installer
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e4218a58e9d64850903e1fa568ac6586)](https://app.codacy.com/gh/lorne-rtm/smartnode-installer?utm_source=github.com&utm_medium=referral&utm_content=lorne-rtm/smartnode-installer&utm_campaign=Badge_Grade)
+
 ![Code Quality](https://img.shields.io/codacy/grade/lorne-rtm/smartnode-installer)
 
 ![License](https://img.shields.io/github/license/lorne-rtm/smartnode-installer)
