@@ -82,6 +82,9 @@ else
     BLSKEY="default_key"
     BOOTSTRAP="n"
     CREATE_SWAP="y"
+    echo "BLSKEY=\"$BLSKEY\"" > user_input.tmp
+    echo "BOOTSTRAP=\"$BOOTSTRAP\"" >> user_input.tmp
+    echo "CREATE_SWAP=\"$CREATE_SWAP\"" >> user_input.tmp
 fi
 
 # Load user input from the temporary file
