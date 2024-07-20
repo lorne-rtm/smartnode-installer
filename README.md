@@ -23,4 +23,4 @@ This script is provided as is and I do not guarantee it will work for you, you u
 
 # Script Demo
 
-https://youtu.be/9UMpJOuXU90
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/9UMpJOuXU90/0.jpg)](https://www.youtube.com/watch?v=9UMpJOuXU90)
