@@ -15,7 +15,7 @@ This script is provided as is and I do not guarantee it will work for you, you u
 - Create 4GB SWAP if needed
 - Get latest release binaries and check checksums. If no match script exits.
 - Creates raptoreum.conf
-- Bootstrap option. If bootstrap is chosen it compares checksum with https://checksums.raptoreum.com/checksums/bootstrap-checksums.txt/ if mismatch, script exits.
+- Bootstrap option. If bootstrap is chosen it compares checksum with <https://checksums.raptoreum.com/checksums/bootstrap-checksums.txt/> if mismatch, script exits.
 - Creates a few command aliases, saves a bit of typing.
 - When synchronizing blockchain local height and explorer height are compared. Progress to next step only when local and explorer height are within 2 of each other.
 - Asks for BLS.

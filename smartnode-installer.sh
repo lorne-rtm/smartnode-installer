@@ -34,9 +34,9 @@ pause() {
 }
 
 check_command() {
-    if ! command -v $1 &> /dev/null; then
+    if ! command -v "$1" &> /dev/null; then
         log "Installing $1..."
-        (DEBIAN_FRONTEND=noninteractive apt-get install -y $1) &
+        (DEBIAN_FRONTEND=noninteractive apt-get install -y "$1") &
         spinner $!
         if [ $? -ne 0 ]; then
             log "Failed to install $1. Exiting."
@@ -266,9 +266,9 @@ pause
 log "Verifying checksums..."
 CHECKSUM_FILE="/home/mcsmarty/rtm-mainnet/checksums.txt"
 if [[ -f $CHECKSUM_FILE ]]; then
-    grep -E '.{56,}' $CHECKSUM_FILE | grep -v 'checksums.txt' | while read -r line; do
-        FILE=$(echo $line | awk '{print $2}')
-        EXPECTED_CHECKSUM=$(echo $line | awk '{print $1}')
+    grep -E '.{56,}' "$CHECKSUM_FILE" | grep -v 'checksums.txt' | while read -r line; do
+        FILE=$(echo "$line" | awk '{print $2}')
+        EXPECTED_CHECKSUM=$(echo "$line" | awk '{print $1}')
         ACTUAL_CHECKSUM=$(su - mcsmarty -c "sha256sum /home/mcsmarty/rtm-mainnet/$FILE | cut -d ' ' -f 1")
         log "Expected checksum for $FILE: $EXPECTED_CHECKSUM"
         log "Actual checksum for $FILE: $ACTUAL_CHECKSUM"
