@@ -21,6 +21,9 @@ This script is provided as is and I do not guarantee it will work for you, you u
 - Asks for BLS.
 - Checks smartnode status and if "Ready" script completes, if any other status script exits with a note.
 
+Before running this script you should have completed collateral + protx quick_setup to get your BLS private key. The script will ask for it at the start. You may want to run the script in tmux or screen as it can take awhile, especially if you do not use the bootstrap.
+ 
+
   Run the script as root:
   
   ```bash
